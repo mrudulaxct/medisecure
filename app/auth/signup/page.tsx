@@ -7,10 +7,8 @@ import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, Eye, EyeOff, Loader2, User, UserCheck, Users, Stethoscope } from 'lucide-react';
-import { UserRole } from '@/lib/types';
+import { Heart, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -18,7 +16,6 @@ export default function SignupPage() {
     password: '',
     confirmPassword: '',
     fullName: '',
-    role: '' as UserRole | '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -26,13 +23,6 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const router = useRouter();
   const supabase = createClient();
-
-  const roleOptions = [
-    { value: 'patient', label: 'Patient', icon: User, description: 'Book appointments and view records' },
-    { value: 'doctor', label: 'Doctor', icon: Stethoscope, description: 'Manage patients and medical records' },
-    { value: 'staff', label: 'Staff', icon: Users, description: 'Administrative support and patient care' },
-    { value: 'admin', label: 'Administrator', icon: UserCheck, description: 'Full system access and management' },
-  ];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,12 +42,6 @@ export default function SignupPage() {
       return;
     }
 
-    if (!formData.role) {
-      setError('Please select a role');
-      setLoading(false);
-      return;
-    }
-
     try {
       // Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -71,14 +55,15 @@ export default function SignupPage() {
       }
 
       if (authData.user) {
-        // Create profile
+        // Create basic profile without role (admin can change this)
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
             id: authData.user.id,
-            role: formData.role as UserRole,
+            role: 'patient', // Default role, admin can change this
             full_name: formData.fullName,
             email: formData.email,
+            is_onboarded: false,
           });
 
         if (profileError) {
@@ -86,31 +71,10 @@ export default function SignupPage() {
           return;
         }
 
-        // Create role-specific record
-        if (formData.role === 'patient') {
-          await supabase.from('patients').insert({
-            id: authData.user.id,
-            date_of_birth: new Date().toISOString().split('T')[0], // Temporary default
-            gender: 'other', // Temporary default
-          });
-        } else if (formData.role === 'doctor') {
-          await supabase.from('doctors').insert({
-            id: authData.user.id,
-            specialization: 'General Medicine', // Temporary default
-            license_number: `LIC-${Date.now()}`, // Temporary default
-          });
-        } else if (formData.role === 'staff') {
-          await supabase.from('staff').insert({
-            id: authData.user.id,
-            department: 'General', // Temporary default
-            position: 'Staff', // Temporary default
-          });
-        }
-
-        router.push('/dashboard');
+        // Redirect to onboarding after successful signup
+        router.push('/onboarding');
       }
     } catch (error) {
-      console.log('Signup error:', error);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
@@ -145,7 +109,7 @@ export default function SignupPage() {
               Sign Up
             </CardTitle>
             <CardDescription className="text-center text-white/60">
-              Fill in your details to get started
+              Enter your details to get started
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -184,30 +148,6 @@ export default function SignupPage() {
                   placeholder="Enter your email"
                   required
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="role" className="text-white">
-                  Role
-                </Label>
-                <Select onValueChange={(value: UserRole) => setFormData({ ...formData, role: value })}>
-                  <SelectTrigger className="glass-input bg-white/20 border-white/30 text-white focus:border-white/50">
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                  <SelectContent className="glass-card bg-white/90 backdrop-blur-md border-white/20">
-                    {roleOptions.map((role) => (
-                      <SelectItem key={role.value} value={role.value}>
-                        <div className="flex items-center space-x-3">
-                          <role.icon className="h-4 w-4" />
-                          <div>
-                            <div className="font-medium">{role.label}</div>
-                            <div className="text-xs text-muted-foreground">{role.description}</div>
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="space-y-2">
@@ -256,6 +196,13 @@ export default function SignupPage() {
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-blue-500/20 border border-blue-500/50 text-blue-200 text-sm">
+                <p className="text-center">
+                  📧 After signing up, please check your email to verify your account.
+                  An administrator will assign your role and permissions.
+                </p>
               </div>
 
               <div className="flex items-center space-x-2">

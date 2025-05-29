@@ -7,6 +7,7 @@ export interface Profile {
   role: UserRole;
   full_name: string;
   email: string;
+  is_onboarded: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -70,7 +71,7 @@ export interface AdminAction {
   admin_id: string;
   action_type: string;
   target_user_id?: string;
-  details?: Record<string, unknown>;
+  details?: any;
   created_at: string;
 }
 
@@ -79,6 +80,7 @@ export interface UserSummary {
   full_name: string;
   email: string;
   role: UserRole;
+  is_onboarded: boolean;
   created_at: string;
   department_or_specialization?: string;
   additional_info?: string;

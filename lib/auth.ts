@@ -54,7 +54,27 @@ export async function requireAuth(requiredRole?: UserRole) {
     redirect('/auth/login');
   }
 
+  // Check if user needs onboarding
+  if (!profile.is_onboarded) {
+    redirect('/onboarding');
+  }
+
   if (requiredRole && profile.role !== requiredRole) {
+    redirect('/dashboard');
+  }
+
+  return profile;
+}
+
+export async function requireOnboarding() {
+  const profile = await getUserProfile();
+  
+  if (!profile) {
+    redirect('/auth/login');
+  }
+
+  // If already onboarded, redirect to dashboard
+  if (profile.is_onboarded) {
     redirect('/dashboard');
   }
 
