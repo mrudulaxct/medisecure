@@ -162,7 +162,7 @@ export default function LoginPage() {
         </Card>
 
         {/* Demo Credentials */}
-        <Card className="glass-card border-white/20 bg-white/5 backdrop-blur-md">
+        {/* <Card className="glass-card border-white/20 bg-white/5 backdrop-blur-md">
           <CardContent className="p-4">
             <p className="text-sm text-white/60 text-center mb-3">Demo Credentials (for testing):</p>
             <div className="grid grid-cols-2 gap-4 text-xs">
@@ -178,7 +178,7 @@ export default function LoginPage() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );
