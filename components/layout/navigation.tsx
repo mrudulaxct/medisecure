@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,7 @@ export function Navigation() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = createClient();
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export function Navigation() {
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth, getProfile]);
+  }, []);
 
   async function getProfile() {
     try {
@@ -90,14 +91,16 @@ export function Navigation() {
               <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
             ) : profile ? (
               <>
-                <Link href="/dashboard">
-                  <Button 
-                    variant="ghost" 
-                    className="glass-button relative overflow-hidden bg-white/30 hover:bg-white/50 border border-white/20"
-                  >
-                    Dashboard
-                  </Button>
-                </Link>
+                {pathname !== '/dashboard' && (
+                  <Link href="/dashboard">
+                    <Button 
+                      variant="ghost" 
+                      className="glass-button relative overflow-hidden bg-white/30 hover:bg-white/50 border border-white/20"
+                    >
+                      Dashboard
+                    </Button>
+                  </Link>
+                )}
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -127,13 +130,17 @@ export function Navigation() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings" className="flex items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
