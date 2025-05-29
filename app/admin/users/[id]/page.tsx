@@ -1,4 +1,3 @@
-import { requireAuth } from '@/lib/auth';
 import { UserEditForm } from '@/components/admin/user-edit-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,6 @@ interface AdminUserEditPageProps {
 }
 
 export default async function AdminUserEditPage({ params }: AdminUserEditPageProps) {
-  const adminProfile = await requireAuth('admin');
   const supabase = await createClient();
 
   // Fetch the user to edit

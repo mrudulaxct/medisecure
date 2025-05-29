@@ -1,12 +1,10 @@
-import { requireAuth } from '@/lib/auth';
 import { BookAppointmentForm } from '@/components/admin/book-appointment-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarPlus } from 'lucide-react';
 import Link from 'next/link';
 
-export default async function BookAppointmentPage() {
-  const profile = await requireAuth('admin');
+export default function BookAppointmentPage() {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8">
