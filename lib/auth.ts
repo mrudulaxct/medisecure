@@ -68,7 +68,8 @@ export async function requireAuth(requiredRole?: UserRole) {
 
 export async function requireOnboarding() {
   const profile = await getUserProfile();
-  
+
+  console.log('profile', profile);
   if (!profile) {
     redirect('/auth/login');
   }

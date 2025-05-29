@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/', '/auth/login', '/auth/signup'];
+  const publicRoutes = ['/', '/auth/login', '/auth/signup', '/auth/confirm', '/error'];
   
   // Auth routes
   const authRoutes = ['/auth/login', '/auth/signup'];
@@ -62,16 +62,18 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // If user is not onboarded
-    if (profile && !profile.is_onboarded) {
-      // Allow onboarding page
+    // If user has no profile or is not onboarded
+    if (!profile || !profile.is_onboarded) {
+      // Allow onboarding page - DON'T redirect if already on onboarding
       if (pathname === onboardingRoute) {
         return response;
       }
-      // Redirect everything else to onboarding
-      if (!publicRoutes.includes(pathname)) {
-        return NextResponse.redirect(new URL('/onboarding', request.url));
+      // Allow public routes
+      if (publicRoutes.includes(pathname)) {
+        return response;
       }
+      // Redirect everything else to onboarding
+      return NextResponse.redirect(new URL('/onboarding', request.url));
     }
 
     // If user is onboarded but trying to access onboarding page

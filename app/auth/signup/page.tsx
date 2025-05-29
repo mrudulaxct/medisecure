@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Heart, Eye, EyeOff, Loader2, Mail, CheckCircle } from 'lucide-react';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -21,6 +21,8 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -43,10 +45,15 @@ export default function SignupPage() {
     }
 
     try {
-      // Sign up the user
+      // Sign up the user - don't create profile yet due to RLS
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+          }
+        }
       });
 
       if (authError) {
@@ -55,30 +62,100 @@ export default function SignupPage() {
       }
 
       if (authData.user) {
-        // Create basic profile without role (admin can change this)
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: authData.user.id,
-            role: 'patient', // Default role, admin can change this
-            full_name: formData.fullName,
-            email: formData.email,
-            is_onboarded: false,
-          });
-
-        if (profileError) {
-          setError('Failed to create profile. Please try again.');
-          return;
-        }
-
-        // Redirect to onboarding after successful signup
-        router.push('/onboarding');
+        // Show success message instead of redirecting
+        setUserEmail(formData.email);
+        setSignupSuccess(true);
       }
     } catch (error) {
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }
+  }
+
+  // Show success message after signup
+  if (signupSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md space-y-8">
+          {/* Header */}
+          <div className="text-center">
+            <Link href="/" className="flex items-center justify-center space-x-3 mb-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg">
+                <Heart className="h-7 w-7 text-white" />
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                MediSecure
+              </span>
+            </Link>
+          </div>
+
+          {/* Success Card */}
+          <Card className="glass-card border-white/20 bg-white/10 backdrop-blur-md">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
+                  <CheckCircle className="h-8 w-8 text-green-400" />
+                </div>
+              </div>
+              <CardTitle className="text-2xl font-bold text-white">
+                Check Your Email
+              </CardTitle>
+              <CardDescription className="text-white/60">
+                We've sent you a verification link
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="text-center space-y-4">
+                <div className="flex justify-center">
+                  <Mail className="h-12 w-12 text-blue-400" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-white">
+                    We've sent a verification email to:
+                  </p>
+                  <p className="text-blue-300 font-medium text-lg">
+                    {userEmail}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-blue-500/20 border border-blue-500/50 text-blue-200 text-sm">
+                <h4 className="font-medium mb-2">Next Steps:</h4>
+                <ol className="space-y-2 text-xs list-decimal list-inside">
+                  <li>Check your email inbox (and spam folder)</li>
+                  <li>Click the verification link in the email</li>
+                  <li>Complete your profile setup</li>
+                  <li>Wait for admin approval to access your dashboard</li>
+                </ol>
+              </div>
+
+              <div className="text-center space-y-4">
+                <p className="text-white/70 text-sm">
+                  Didn't receive the email?
+                </p>
+                <Button
+                  onClick={() => setSignupSuccess(false)}
+                  variant="outline"
+                  className="glass-button bg-white/20 hover:bg-white/30 text-white border-white/20"
+                >
+                  Try Again
+                </Button>
+              </div>
+
+              <div className="text-center">
+                <p className="text-white/70">
+                  Already verified?{' '}
+                  <Link href="/auth/login" className="text-white hover:text-white/80 font-medium">
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -196,13 +273,6 @@ export default function SignupPage() {
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-              </div>
-
-              <div className="p-3 rounded-lg bg-blue-500/20 border border-blue-500/50 text-blue-200 text-sm">
-                <p className="text-center">
-                  📧 After signing up, please check your email to verify your account.
-                  An administrator will assign your role and permissions.
-                </p>
               </div>
 
               <div className="flex items-center space-x-2">
