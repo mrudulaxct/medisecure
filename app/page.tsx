@@ -9,7 +9,6 @@ import {
   FileText, 
   Activity,
   CheckCircle,
-  Star,
   ArrowRight
 } from 'lucide-react';
 

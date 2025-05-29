@@ -110,6 +110,7 @@ export default function SignupPage() {
         router.push('/dashboard');
       }
     } catch (error) {
+      console.log('Signup error:', error);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);

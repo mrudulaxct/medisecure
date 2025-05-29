@@ -26,7 +26,7 @@ export function Navigation() {
   useEffect(() => {
     getProfile();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_IN') {
         getProfile();
       } else if (event === 'SIGNED_OUT') {
@@ -35,7 +35,7 @@ export function Navigation() {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase.auth, getProfile]);
 
   async function getProfile() {
     try {
