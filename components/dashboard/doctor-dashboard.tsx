@@ -5,6 +5,7 @@ interface DoctorDashboardProps {
 }
 
 export function DoctorDashboard({ profile }: DoctorDashboardProps) {
+  console.log('DoctorDashboard', profile);
   return (
     <div className="space-y-8">
       <div className="text-center py-12">

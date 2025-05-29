@@ -5,6 +5,7 @@ interface AdminDashboardProps {
 }
 
 export function AdminDashboard({ profile }: AdminDashboardProps) {
+  console.log('AdminDashboard', profile);
   return (
     <div className="space-y-8">
       <div className="text-center py-12">

@@ -44,7 +44,7 @@ export default function ErrorPage() {
             <div className="p-4 rounded-lg bg-yellow-500/20 border border-yellow-500/50 text-yellow-200 text-sm">
               <h4 className="font-medium mb-2">What you can do:</h4>
               <ul className="space-y-1 text-xs list-disc list-inside">
-                <li>Check if you've already verified your email</li>
+                <li>Check if you&apos;ve already verified your email</li>
                 <li>Try signing up again if the link is expired</li>
                 <li>Contact support if the problem persists</li>
               </ul>

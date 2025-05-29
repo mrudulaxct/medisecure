@@ -5,7 +5,6 @@ import {
   Calendar, 
   FileText, 
   Heart, 
-  User, 
   Clock,
   Plus,
   Activity
@@ -17,6 +16,7 @@ interface PatientDashboardProps {
 }
 
 export function PatientDashboard({ profile }: PatientDashboardProps) {
+  console.log('PatientDashboard', profile);
   return (
     <div className="space-y-8">
       {/* Quick Stats */}

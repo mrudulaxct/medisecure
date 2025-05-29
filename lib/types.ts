@@ -71,7 +71,7 @@ export interface AdminAction {
   admin_id: string;
   action_type: string;
   target_user_id?: string;
-  details?: any;
+  details?: Record<string, unknown>;
   created_at: string;
 }
 

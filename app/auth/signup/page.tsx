@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -23,7 +22,6 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [signupSuccess, setSignupSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState('');
-  const router = useRouter();
   const supabase = createClient();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -67,6 +65,7 @@ export default function SignupPage() {
         setSignupSuccess(true);
       }
     } catch (error) {
+      console.log('Signup error:', error);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
@@ -102,7 +101,7 @@ export default function SignupPage() {
                 Check Your Email
               </CardTitle>
               <CardDescription className="text-white/60">
-                We've sent you a verification link
+                We&apos;ve sent you a verification link
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -112,7 +111,7 @@ export default function SignupPage() {
                 </div>
                 <div className="space-y-2">
                   <p className="text-white">
-                    We've sent a verification email to:
+                    We&apos;ve sent a verification email to:
                   </p>
                   <p className="text-blue-300 font-medium text-lg">
                     {userEmail}
@@ -132,7 +131,7 @@ export default function SignupPage() {
 
               <div className="text-center space-y-4">
                 <p className="text-white/70 text-sm">
-                  Didn't receive the email?
+                  Didn&apos;t receive the email?
                 </p>
                 <Button
                   onClick={() => setSignupSuccess(false)}

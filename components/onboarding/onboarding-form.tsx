@@ -75,6 +75,7 @@ export function OnboardingForm({ profile }: OnboardingFormProps) {
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (error) {
+      console.log('Onboarding error:', error);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
@@ -211,8 +212,8 @@ export function OnboardingForm({ profile }: OnboardingFormProps) {
         <h4 className="font-medium mb-2">Important Notes:</h4>
         <ul className="space-y-1 text-xs">
           <li>• Your account will be reviewed by an administrator</li>
-          <li>• You'll be assigned the appropriate role (Patient, Doctor, or Staff)</li>
-          <li>• You'll receive an email notification once your account is approved</li>
+          <li>• You&apos;ll be assigned the appropriate role (Patient, Doctor, or Staff)</li>
+          <li>• You&apos;ll receive an email notification once your account is approved</li>
           <li>• All information can be updated later from your dashboard</li>
         </ul>
       </div>

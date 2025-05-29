@@ -5,6 +5,7 @@ interface StaffDashboardProps {
 }
 
 export function StaffDashboard({ profile }: StaffDashboardProps) {
+  console.log('StaffDashboard', profile);
   return (
     <div className="space-y-8">
       <div className="text-center py-12">
