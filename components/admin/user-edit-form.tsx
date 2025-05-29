@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Save, UserPlus, Stethoscope, Users, Shield } from 'lucide-react';
@@ -124,6 +123,7 @@ export function UserEditForm({ user }: UserEditFormProps) {
         router.refresh();
       }, 2000);
     } catch (error) {
+      console.log('Error updating user:', error);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);

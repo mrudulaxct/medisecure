@@ -1,6 +1,6 @@
 import { UsersList } from '@/components/admin/users-list';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Search, Filter } from 'lucide-react';
+import { Users } from 'lucide-react';
 
 export default async function AdminUsersPage() {
 

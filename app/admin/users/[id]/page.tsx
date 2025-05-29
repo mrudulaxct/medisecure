@@ -7,19 +7,21 @@ import { createClient } from '@/utils/supabase/server';
 import { notFound } from 'next/navigation';
 
 interface AdminUserEditPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export default async function AdminUserEditPage({ params }: AdminUserEditPageProps) {
+  const { id } = await params;
   const supabase = await createClient();
 
   // Fetch the user to edit
   const { data: user, error } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (error || !user) {

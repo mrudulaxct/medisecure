@@ -5,7 +5,7 @@ import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import { Search, Eye, FileText, Calendar, User } from 'lucide-react';
+import { Search, Eye, FileText, User } from 'lucide-react';
 import Link from 'next/link';
 
 interface Patient {
@@ -64,12 +64,13 @@ export function DoctorPatientsList({ doctorId }: DoctorPatientsListProps) {
       // Process unique patients with appointment info
       const patientMap = new Map();
       
-      appointmentData?.forEach((apt: any) => {
-        if (apt.patient) {
-          const patientId = apt.patient.id;
+      appointmentData?.forEach((apt) => {
+        const patient = Array.isArray(apt.patient) ? apt.patient[0] : apt.patient;
+        if (patient) {
+          const patientId = patient.id;
           if (!patientMap.has(patientId)) {
             patientMap.set(patientId, {
-              ...apt.patient,
+              ...patient,
               last_appointment: apt.appointment_date,
               appointment_count: 1
             });

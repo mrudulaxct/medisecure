@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Edit, Trash2, UserCheck, UserX, Search, Filter } from 'lucide-react';
+import { Edit, Trash2, UserCheck, UserX, Search } from 'lucide-react';
 import { Profile } from '@/lib/types';
 import Link from 'next/link';
 

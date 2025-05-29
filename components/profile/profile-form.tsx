@@ -6,7 +6,6 @@ import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Save } from 'lucide-react';
 import { Profile } from '@/lib/types';
 
@@ -49,6 +48,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       setTimeout(() => setSuccess(false), 3000);
       router.refresh();
     } catch (error) {
+      console.log('Error updating profile:', error);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);

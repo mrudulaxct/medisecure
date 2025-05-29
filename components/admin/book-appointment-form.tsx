@@ -107,6 +107,7 @@ export function BookAppointmentForm() {
         router.push('/admin/appointments');
       }, 2000);
     } catch (error) {
+      console.log('Error booking appointment:', error);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);

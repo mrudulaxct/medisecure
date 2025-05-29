@@ -12,7 +12,6 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Plus,
   Eye,
   Upload
 } from 'lucide-react';
@@ -48,6 +47,7 @@ interface RecentPatient {
 }
 
 export function DoctorDashboard({ profile }: DoctorDashboardProps) {
+  console.log('DoctorDashboard', profile);
   const [stats, setStats] = useState<DashboardStats>({
     todayAppointments: 0,
     totalPatients: 0,
@@ -131,10 +131,10 @@ export function DoctorDashboard({ profile }: DoctorDashboardProps) {
 
       // Process unique patients
       const uniquePatients = new Map();
-      patients?.forEach((apt: any) => {
-        if (apt.patient && !uniquePatients.has(apt.patient.id)) {
-          uniquePatients.set(apt.patient.id, {
-            ...apt.patient,
+      patients?.forEach((apt: { patient: { id: string; full_name: string; email: string; }[]; appointment_date: string; }) => {
+        if (apt.patient && !uniquePatients.has(apt.patient[0].id)) {
+          uniquePatients.set(apt.patient[0].id, {
+            ...apt.patient[0],
             last_appointment: apt.appointment_date
           });
         }
@@ -202,7 +202,7 @@ export function DoctorDashboard({ profile }: DoctorDashboardProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/70 text-sm font-medium">Today's Appointments</p>
+                <p className="text-white/70 text-sm font-medium">Today&apos;s Appointments</p>
                 <p className="text-2xl font-bold text-white">{stats.todayAppointments}</p>
                 <p className="text-white/60 text-xs">{stats.completedToday} completed</p>
               </div>
@@ -290,7 +290,7 @@ export function DoctorDashboard({ profile }: DoctorDashboardProps) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-white">Today's Appointments</CardTitle>
+              <CardTitle className="text-white">Today&apos;s Appointments</CardTitle>
               <CardDescription className="text-white/60">
                 Your schedule for today
               </CardDescription>
@@ -331,7 +331,7 @@ export function DoctorDashboard({ profile }: DoctorDashboardProps) {
                   </Badge>
                   
                   <div className="flex items-center space-x-2">
-                    {appointment.status === 'confirmed' && (
+                    {appointment.status === 'scheduled' && (
                       <Button 
                         onClick={() => updateAppointmentStatus(appointment.id, 'completed')}
                         size="sm" 
@@ -342,7 +342,7 @@ export function DoctorDashboard({ profile }: DoctorDashboardProps) {
                       </Button>
                     )}
                     
-                    {(appointment.status === 'scheduled' || appointment.status === 'confirmed') && (
+                    {(appointment.status === 'scheduled' || appointment.status === 'completed') && (
                       <Button 
                         onClick={() => updateAppointmentStatus(appointment.id, 'cancelled')}
                         size="sm" 
@@ -371,7 +371,7 @@ export function DoctorDashboard({ profile }: DoctorDashboardProps) {
             <div>
               <CardTitle className="text-white">Recent Patients</CardTitle>
               <CardDescription className="text-white/60">
-                Patients you've recently treated
+                Patients you&apos;ve recently treated
               </CardDescription>
             </div>
             <Button asChild className="glass-button bg-green-600 hover:bg-green-700 text-white">
