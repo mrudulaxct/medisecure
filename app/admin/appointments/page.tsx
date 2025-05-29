@@ -1,9 +1,9 @@
 import { requireAuth } from '@/lib/auth';
-import { UsersList } from '@/components/admin/users-list';
+import { AppointmentsList } from '@/components/admin/appointments-list';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Search, Filter } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 
-export default async function AdminUsersPage() {
+export default async function AdminAppointmentsPage() {
   const profile = await requireAuth('admin');
 
   return (
@@ -12,24 +12,24 @@ export default async function AdminUsersPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Users className="h-8 w-8 text-red-400" />
+            <Calendar className="h-8 w-8 text-blue-400" />
             <div>
-              <h1 className="text-3xl font-bold text-white">User Management</h1>
-              <p className="text-white/70">Manage all user accounts and permissions</p>
+              <h1 className="text-3xl font-bold text-white">Appointment Management</h1>
+              <p className="text-white/70">View and manage all appointments</p>
             </div>
           </div>
         </div>
 
-        {/* Users List */}
+        {/* Appointments List */}
         <Card className="glass-card border-white/20 bg-white/10">
           <CardHeader>
-            <CardTitle className="text-white">All Users</CardTitle>
+            <CardTitle className="text-white">All Appointments</CardTitle>
             <CardDescription className="text-white/60">
-              Click on any user to view and edit their profile
+              Manage patient appointments and schedules
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <UsersList />
+            <AppointmentsList />
           </CardContent>
         </Card>
       </div>
