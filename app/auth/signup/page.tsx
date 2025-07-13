@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/utils/supabase/client';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, Eye, EyeOff, Loader2, Mail, CheckCircle } from 'lucide-react';
+import { OAuthProviders } from '@/components/auth/oauth-providers';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -22,7 +23,6 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [signupSuccess, setSignupSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState('');
-  const supabase = createClient();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,27 +43,27 @@ export default function SignupPage() {
     }
 
     try {
-      // Sign up the user - don't create profile yet due to RLS
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-          }
-        }
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+        }),
       });
 
-      if (authError) {
-        setError(authError.message);
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Failed to create account');
         return;
       }
 
-      if (authData.user) {
-        // Show success message instead of redirecting
-        setUserEmail(formData.email);
-        setSignupSuccess(true);
-      }
+      setUserEmail(formData.email);
+      setSignupSuccess(true);
     } catch (error) {
       console.log('Signup error:', error);
       setError('An unexpected error occurred');
@@ -302,6 +302,8 @@ export default function SignupPage() {
                   'Create Account'
                 )}
               </Button>
+
+              <OAuthProviders className="mt-6" />
 
               <div className="text-center">
                 <p className="text-white/70">

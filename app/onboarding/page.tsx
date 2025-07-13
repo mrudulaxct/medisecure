@@ -1,4 +1,4 @@
-import { requireOnboarding } from '@/lib/auth';
+import { requireOnboarding } from '@/lib/nextauth';
 import { OnboardingForm } from '@/components/onboarding/onboarding-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, UserCheck } from 'lucide-react';

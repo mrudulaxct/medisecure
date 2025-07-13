@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -18,37 +18,28 @@ import { Heart, LogOut, Settings, User } from 'lucide-react';
 import { Profile } from '@/lib/types';
 
 export function Navigation() {
+  const { data: session, status } = useSession();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const supabase = createClient();
 
   useEffect(() => {
-    getProfile();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') {
-        getProfile();
-      } else if (event === 'SIGNED_OUT') {
-        setProfile(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    if (session?.user?.id) {
+      getProfile();
+    } else {
+      setProfile(null);
+      setLoading(false);
+    }
+  }, [session]);
 
   async function getProfile() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      if (!session?.user?.id) return;
       
-      if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        
+      const response = await fetch(`/api/user/profile`);
+      if (response.ok) {
+        const data = await response.json();
         setProfile(data);
       }
     } catch (error) {
@@ -59,8 +50,7 @@ export function Navigation() {
   }
 
   async function handleSignOut() {
-    await supabase.auth.signOut();
-    router.push('/');
+    await signOut({ callbackUrl: '/' });
   }
 
   function getRoleColor(role: string) {
@@ -87,9 +77,9 @@ export function Navigation() {
           </Link>
 
           <div className="flex items-center space-x-4">
-            {loading ? (
+            {status === 'loading' || loading ? (
               <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
-            ) : profile ? (
+            ) : session?.user ? (
               <>
                 {pathname !== '/dashboard' && (
                   <Link href="/dashboard">
@@ -110,7 +100,7 @@ export function Navigation() {
                     >
                       <Avatar className="h-8 w-8">
                         <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                          {profile.full_name.charAt(0).toUpperCase()}
+                          {(profile?.full_name || session.user.name || 'U').charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
@@ -122,10 +112,10 @@ export function Navigation() {
                   >
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-2">
-                        <p className="text-sm font-medium leading-none">{profile.full_name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">{profile.email}</p>
-                        <div className={`inline-flex w-fit rounded-full px-2 py-1 text-xs font-medium ${getRoleColor(profile.role)}`}>
-                          {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
+                        <p className="text-sm font-medium leading-none">{profile?.full_name || session.user.name}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{profile?.email || session.user.email}</p>
+                        <div className={`inline-flex w-fit rounded-full px-2 py-1 text-xs font-medium ${getRoleColor(profile?.role || 'patient')}`}>
+                          {(profile?.role || 'patient').charAt(0).toUpperCase() + (profile?.role || 'patient').slice(1)}
                         </div>
                       </div>
                     </DropdownMenuLabel>

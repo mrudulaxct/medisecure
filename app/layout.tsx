@@ -2,6 +2,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { Navigation } from "@/components/layout/navigation"
+import { AuthProvider } from "@/components/providers/session-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,10 +22,12 @@ export default function RootLayout({
         "min-h-screen bg-background font-sans antialiased",
         inter.className
       )}>
-        <Navigation />
-        <main className="flex-1">
-          {children}
-        </main>
+        <AuthProvider>
+          <Navigation />
+          <main className="flex-1">
+            {children}
+          </main>
+        </AuthProvider>
       </body>
     </html>
   )

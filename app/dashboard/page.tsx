@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/auth';
+import { requireAuth } from '@/lib/nextauth';
 import { AdminDashboard } from '@/components/dashboard/admin-dashboard';
 import { DoctorDashboard } from '@/components/dashboard/doctor-dashboard';
 import { StaffDashboard } from '@/components/dashboard/staff-dashboard';

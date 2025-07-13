@@ -1,95 +1,68 @@
-import { createServerClient } from '@supabase/ssr';
-import { type NextRequest, NextResponse } from 'next/server';
+import { withAuth } from 'next-auth/middleware';
+import { NextResponse } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
+export default withAuth(
+  function middleware(req) {
+    const { pathname } = req.nextUrl;
+    const token = req.nextauth.token;
+
+    // Public routes that don't require authentication
+    const publicRoutes = ['/', '/auth/login', '/auth/signup', '/auth/confirm', '/error'];
+    
+    // Auth routes
+    const authRoutes = ['/auth/login', '/auth/signup'];
+    
+    // Protected routes that require authentication and onboarding
+    const protectedRoutes = ['/dashboard'];
+    
+    // Onboarding route
+    const onboardingRoute = '/onboarding';
+
+    // If user is authenticated
+    if (token) {
+      // If user is on auth pages and already logged in, redirect based on onboarding status
+      if (authRoutes.includes(pathname)) {
+        if (token.is_onboarded) {
+          return NextResponse.redirect(new URL('/dashboard', req.url));
+        } else {
+          return NextResponse.redirect(new URL('/onboarding', req.url));
+        }
+      }
+
+      // If user is not onboarded
+      if (!token.is_onboarded) {
+        // Allow onboarding page - DON'T redirect if already on onboarding
+        if (pathname === onboardingRoute) {
+          return NextResponse.next();
+        }
+        // Allow public routes
+        if (publicRoutes.includes(pathname)) {
+          return NextResponse.next();
+        }
+        // Redirect everything else to onboarding
+        return NextResponse.redirect(new URL('/onboarding', req.url));
+      }
+
+      // If user is onboarded but trying to access onboarding page
+      if (token.is_onboarded && pathname === onboardingRoute) {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
+      }
+    } else {
+      // User is not authenticated
+      // Redirect protected routes to login
+      if (protectedRoutes.some(route => pathname.startsWith(route)) || pathname === onboardingRoute) {
+        return NextResponse.redirect(new URL('/auth/login', req.url));
+      }
+    }
+
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
     },
-  });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
-          response = NextResponse.next({
-            request,
-          });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
-      },
-    },
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  const { pathname } = request.nextUrl;
-
-  // Public routes that don't require authentication
-  const publicRoutes = ['/', '/auth/login', '/auth/signup', '/auth/confirm', '/error'];
-  
-  // Auth routes
-  const authRoutes = ['/auth/login', '/auth/signup'];
-  
-  // Protected routes that require authentication and onboarding
-  const protectedRoutes = ['/dashboard'];
-  
-  // Onboarding route
-  const onboardingRoute = '/onboarding';
-
-  // If user is authenticated
-  if (user) {
-    // Get user profile
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    // If user is on auth pages and already logged in, redirect based on onboarding status
-    if (authRoutes.includes(pathname)) {
-      if (profile?.is_onboarded) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
-      } else {
-        return NextResponse.redirect(new URL('/onboarding', request.url));
-      }
-    }
-
-    // If user has no profile or is not onboarded
-    if (!profile || !profile.is_onboarded) {
-      // Allow onboarding page - DON'T redirect if already on onboarding
-      if (pathname === onboardingRoute) {
-        return response;
-      }
-      // Allow public routes
-      if (publicRoutes.includes(pathname)) {
-        return response;
-      }
-      // Redirect everything else to onboarding
-      return NextResponse.redirect(new URL('/onboarding', request.url));
-    }
-
-    // If user is onboarded but trying to access onboarding page
-    if (profile?.is_onboarded && pathname === onboardingRoute) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
-  } else {
-    // User is not authenticated
-    // Redirect protected routes to login
-    if (protectedRoutes.some(route => pathname.startsWith(route)) || pathname === onboardingRoute) {
-      return NextResponse.redirect(new URL('/auth/login', request.url));
-    }
   }
-
-  return response;
-}
+);
 
 export const config = {
   matcher: [
